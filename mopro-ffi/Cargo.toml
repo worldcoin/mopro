@@ -23,6 +23,10 @@ num-bigint = { version = "=0.4.3", default-features = false, features = [
     "rand",
 ] }
 
+# TODO: Very old version, upgrade?
+wasmer = { version = "=2.3.0" }
+
+
 # Error handling
 thiserror = "=1.0.39"
 color-eyre = "=0.6.2"

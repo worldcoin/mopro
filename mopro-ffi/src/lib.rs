@@ -6,6 +6,8 @@ use num_bigint::BigInt;
 use std::collections::HashMap;
 use std::sync::RwLock;
 
+use wasmer::{Memory, MemoryType, Store};
+
 #[derive(Debug)]
 pub enum FFIError {
     MoproError(mopro_core::MoproError),
@@ -112,6 +114,22 @@ pub fn init_circom_state() -> Result<(), MoproError> {
 // fn run_example(wasm_path: String, r1cs_path: String) -> Result<(), MoproError> {
 //     circom::run_example(wasm_path.as_str(), r1cs_path.as_str())
 // }
+
+// Testing memory allocation bug
+pub fn create_memory(size: u32) -> Result<(), MoproError> {
+    let store = Store::default();
+    let memory_type = MemoryType::new(size, None, false);
+    match Memory::new(&store, memory_type) {
+        Ok(_) => Ok(()),
+        Err(e) => {
+            //            Err(format!("Failed to create memory: {:?}", e))
+            Err(MoproError::CircomError(format!(
+                "Failed to create memory: {:?}",
+                e
+            )))
+        }
+    }
+}
 
 uniffi::include_scaffolding!("mopro");
 

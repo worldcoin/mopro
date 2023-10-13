@@ -687,6 +687,14 @@ public func initCircomState() throws {
     }
 }
 
+public func createMemory(size: UInt32) throws {
+    try rustCallWithError(FfiConverterTypeMoproError.lift) {
+        uniffi_mopro_fn_func_create_memory(
+            FfiConverterUInt32.lower(size), $0
+        )
+    }
+}
+
 private enum InitializationResult {
     case ok
     case contractVersionMismatch
@@ -710,6 +718,9 @@ private var initializationResult: InitializationResult {
         return InitializationResult.apiChecksumMismatch
     }
     if uniffi_mopro_checksum_func_init_circom_state() != 20999 {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if uniffi_mopro_checksum_func_create_memory() != 52619 {
         return InitializationResult.apiChecksumMismatch
     }
     if uniffi_mopro_checksum_method_moprocircom_setup() != 40345 {

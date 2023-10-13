@@ -24,7 +24,19 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
-        runSetup()
+        runMemoryTest()
+//        runSetup()
+    }
+
+    func runMemoryTest() {
+        print("Running memory test...")
+
+        do {
+            try createMemory(size: 100)
+            print("Memory successfully created.")
+        } catch let error {
+            print("Failed to create memory: \(error)")
+        }
     }
 
     func runSetup() {

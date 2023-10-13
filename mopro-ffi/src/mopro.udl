@@ -4,6 +4,10 @@ namespace mopro {
 
   [Throws=MoproError]
   void init_circom_state();
+
+  [Throws=MoproError]
+  void create_memory(u32 size);
+
 };
 
 dictionary SetupResult {
