@@ -90,6 +90,10 @@ class KeccakZkeyViewController: UIViewController {
         }
     }
 
+    func updateInitializationTime(_ timeTaken: Double) {
+       textView.text += "Initializing arkzkey took \(timeTaken) seconds.\n"
+    }
+
     @objc func runProveAction() {
         // Logic for prove (generate_proof2)
         do {

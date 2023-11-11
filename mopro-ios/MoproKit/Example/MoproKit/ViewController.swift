@@ -22,16 +22,31 @@ class ViewController: UIViewController {
 
         // Initialize Mopro as early as possible
         // NOTE: This is for Keccak (zkey) specifically
-        do {
-            let start = CFAbsoluteTimeGetCurrent()
-            try initializeMopro()
-            let end = CFAbsoluteTimeGetCurrent()
-            let timeTaken = end - start
-            UserDefaults.standard.set(timeTaken, forKey: "timeToInitialize")
-        } catch let error as MoproError {
-            print("MoproError: \(error)")
-        } catch {
-            print("Unexpected error: \(error)")
+        // Move the initialization to a background thread
+        DispatchQueue.global(qos: .userInitiated).async {
+            do {
+                let start = CFAbsoluteTimeGetCurrent()
+                try initializeMopro()
+                let end = CFAbsoluteTimeGetCurrent()
+                let timeTaken = end - start
+
+                UserDefaults.standard.set(timeTaken, forKey: "timeToInitialize")
+
+                DispatchQueue.main.async {
+                    // If you need to update the UI based on the result
+                    // Do it here on the main thread
+                }
+            } catch let error as MoproError {
+                DispatchQueue.main.async {
+                    print("MoproError: \(error)")
+                    // Optionally update the UI to show error
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    print("Unexpected error: \(error)")
+                    // Optionally update the UI to show error
+                }
+            }
         }
 
         // Maybe black nice, need more style tweaks though
