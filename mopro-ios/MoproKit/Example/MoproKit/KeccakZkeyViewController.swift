@@ -24,6 +24,12 @@ class KeccakZkeyViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
+
+        if UserDefaults.standard.object(forKey: "timeToInitialize") != nil {
+            let timeTakenInitialize = UserDefaults.standard.double(forKey: "timeToInitialize")
+            textView.text += "Initializing arkzkey took \(timeTakenInitialize) seconds.\n"
+        }
+
         setupUI()
     }
 
@@ -76,6 +82,7 @@ class KeccakZkeyViewController: UIViewController {
             let timeTaken = end - start
 
             textView.text += "Initializing arkzkey took \(timeTaken) seconds.\n"
+
         } catch let error as MoproError {
             print("MoproError: \(error)")
         } catch {

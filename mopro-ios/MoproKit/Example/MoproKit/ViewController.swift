@@ -19,6 +19,21 @@ class ViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        // Initialize Mopro as early as possible
+        // NOTE: This is for Keccak (zkey) specifically
+        do {
+            let start = CFAbsoluteTimeGetCurrent()
+            try initializeMopro()
+            let end = CFAbsoluteTimeGetCurrent()
+            let timeTaken = end - start
+            UserDefaults.standard.set(timeTaken, forKey: "timeToInitialize")
+        } catch let error as MoproError {
+            print("MoproError: \(error)")
+        } catch {
+            print("Unexpected error: \(error)")
+        }
+
         // Maybe black nice, need more style tweaks though
         view.backgroundColor = .white
         setupMainUI()
