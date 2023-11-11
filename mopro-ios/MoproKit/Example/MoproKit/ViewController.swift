@@ -8,10 +8,12 @@
 
 import UIKit
 import MoproKit
+//import KeccakZkeyViewController
 
 
 // Main ViewController
 class ViewController: UIViewController {
+    var keccakZkeyViewController: KeccakZkeyViewController?
 
     let keccakSetupButton = UIButton(type: .system)
     let keccakZkeyButton = UIButton(type: .system)
@@ -22,19 +24,29 @@ class ViewController: UIViewController {
 
         // Initialize Mopro as early as possible
         // NOTE: This is for Keccak (zkey) specifically
-        // Move the initialization to a background thread
-        DispatchQueue.global(qos: .userInitiated).async {
-            do {
-                let start = CFAbsoluteTimeGetCurrent()
-                try initializeMopro()
-                let end = CFAbsoluteTimeGetCurrent()
-                let timeTaken = end - start
+        initializeMoproAndMeasureTime()
 
-                UserDefaults.standard.set(timeTaken, forKey: "timeToInitialize")
+        // Maybe black nice, need more style tweaks though
+        view.backgroundColor = .white
+        setupMainUI()
+    }
+
+    // Move the initialization to a background thread
+    private func initializeMoproAndMeasureTime() {
+        let start = CFAbsoluteTimeGetCurrent()
+
+        DispatchQueue.global(qos: .background).async {
+            do {
+                try initializeMopro()
+                let timeTaken = CFAbsoluteTimeGetCurrent() - start
 
                 DispatchQueue.main.async {
-                    // If you need to update the UI based on the result
-                    // Do it here on the main thread
+                    // Assuming you have a reference to KeccakZkeyViewController
+                    let keccakZkeyVC = KeccakZkeyViewController()
+                    keccakZkeyVC.delegate = self
+                    self.present(keccakZkeyVC, animated: true, completion: nil)
+
+                    keccakZkeyVC.delegate?.didUpdateInitializationTime(timeTaken)
                 }
             } catch let error as MoproError {
                 DispatchQueue.main.async {
@@ -43,15 +55,11 @@ class ViewController: UIViewController {
                 }
             } catch {
                 DispatchQueue.main.async {
-                    print("Unexpected error: \(error)")
+                    print("Unexpected error: \(error)") 
                     // Optionally update the UI to show error
                 }
             }
         }
-
-        // Maybe black nice, need more style tweaks though
-        view.backgroundColor = .white
-        setupMainUI()
     }
 
     func setupMainUI() {
@@ -85,6 +93,7 @@ class ViewController: UIViewController {
 
     @objc func openKeccakZkey() {
         let keccakZkeyVC = KeccakZkeyViewController()
+        keccakZkeyVC.delegate = self
         navigationController?.pushViewController(keccakZkeyVC, animated: true)
     }
 
@@ -93,6 +102,21 @@ class ViewController: UIViewController {
         navigationController?.pushViewController(rsaVC, animated: true)
     }
 }
+
+extension ViewController: KeccakZkeyViewControllerDelegate {
+    func didUpdateInitializationTime(_ timeTaken: Double) {
+        // This will call the updateInitializationTime method of KeccakZkeyViewController
+        keccakZkeyViewController?.updateInitializationTime(timeTaken)
+    }
+}
+
+// extension ViewController: KeccakZkeyViewControllerDelegate {
+//     func didUpdateInitializationTime(_ timeTaken: Double) {
+//         DispatchQueue.main.async {
+//             self.textView.text += "Initializing arkzkey already done, took \(timeTaken) seconds.\n"
+//         }
+//     }
+// }
 
 //        // Make buttons bigger
 //        proveButton.contentEdgeInsets = UIEdgeInsets(top: 12, left: 16, bottom: 12, right: 16)

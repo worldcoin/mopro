@@ -10,56 +10,59 @@ import UIKit
 import MoproKit
 
 class KeccakZkeyViewController: UIViewController {
+    weak var delegate: KeccakZkeyViewControllerDelegate?
 
     var initButton = UIButton(type: .system)
     var proveButton = UIButton(type: .system)
     var verifyButton = UIButton(type: .system)
+    
     var textView = UITextView()
 
     let moproCircom = MoproKit.MoproCircom()
     //var setupResult: SetupResult?
     var generatedProof: Data?
     var publicInputs: Data?
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-
-        if UserDefaults.standard.object(forKey: "timeToInitialize") != nil {
-            let timeTakenInitialize = UserDefaults.standard.double(forKey: "timeToInitialize")
-            textView.text += "Initializing arkzkey took \(timeTakenInitialize) seconds.\n"
-        }
-
+        
+        // if UserDefaults.standard.object(forKey: "timeToInitialize") != nil {
+        //     let timeTakenInitialize = UserDefaults.standard.double(forKey: "timeToInitialize")
+        //     textView.text += "Initializing arkzkey took \(timeTakenInitialize) seconds.\n"
+        // }
+        
         setupUI()
     }
+
 
     func setupUI() {
         initButton.setTitle("Init", for: .normal)
         proveButton.setTitle("Prove", for: .normal)
         verifyButton.setTitle("Verify", for: .normal)
-
+        
         // Uncomment once init separate
         //proveButton.isEnabled = false
         proveButton.isEnabled = true
         verifyButton.isEnabled = false
         textView.isEditable = false
-
+        
         self.title = "Keccak256 (zkey)"
-
+        
         // Setup actions for buttons
         initButton.addTarget(self, action: #selector(runInitAction), for: .touchUpInside)
         proveButton.addTarget(self, action: #selector(runProveAction), for: .touchUpInside)
         verifyButton.addTarget(self, action: #selector(runVerifyAction), for: .touchUpInside)
-
+        
         let stackView = UIStackView(arrangedSubviews: [initButton, proveButton, verifyButton, textView])
         stackView.axis = .vertical
         stackView.spacing = 10
         stackView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(stackView)
-
+        
         // Make text view visible
         textView.heightAnchor.constraint(equalToConstant: 200).isActive = true
-
+        
         NSLayoutConstraint.activate([
             stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             stackView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
@@ -74,9 +77,9 @@ class KeccakZkeyViewController: UIViewController {
             textView.text += "Initializing library\n"
             // Record start time
             let start = CFAbsoluteTimeGetCurrent()
-
+            
             try initializeMopro()
-
+            
             // Record end time and compute duration
             let end = CFAbsoluteTimeGetCurrent()
             let timeTaken = end - start
@@ -90,8 +93,14 @@ class KeccakZkeyViewController: UIViewController {
         }
     }
 
+    // func updateInitializationTime(_ timeTaken: Double) {
+    //     textView.text += "Initializing arkzkey already done, took \(timeTaken) seconds.\n"
+    // }
+
     func updateInitializationTime(_ timeTaken: Double) {
-       textView.text += "Initializing arkzkey took \(timeTaken) seconds.\n"
+        DispatchQueue.main.async {
+            self.textView.text += "Initializing arkzkey already done, took \(timeTaken) seconds.\n"
+        }
     }
 
     @objc func runProveAction() {
@@ -138,8 +147,25 @@ class KeccakZkeyViewController: UIViewController {
             print("Unexpected error: \(error)")
         }
     }
-
+    
     @objc func runVerifyAction() {
         // Logic for verify
     }
 }
+
+// // Conforming to the delegate protocol
+// extension KeccakZkeyViewController: KeccakZkeyViewControllerDelegate {
+//     func updateInitializationTime(_ timeTaken: Double) {
+//         DispatchQueue.main.async {
+//             self.textView.text += "Initializing arkzkey already done, took \(timeTaken) seconds.\n"
+//         }
+//     }
+// }
+
+protocol KeccakZkeyViewControllerDelegate: AnyObject {
+    func didUpdateInitializationTime(_ timeTaken: Double)
+}
+
+// protocol KeccakZkeyViewControllerDelegate: AnyObject {
+//     func didUpdateInitializationMessage(_ message: String)
+// }
