@@ -25,7 +25,9 @@ PTAU_PATH="${PTAU_DIR}/powersOfTau28_hez_final_${PTAU}.ptau"
 
 if [ ! -f "$PTAU_PATH" ]; then
     echo "Downloading Powers of Tau file..."
-    wget -P $PTAU_DIR https://hermez.s3-eu-west-1.amazonaws.com/powersOfTau28_hez_final_${PTAU}.ptau
+    echo "Bucket has been deleted"
+    exit 1
+    # wget -P $PTAU_DIR # https://hermez.s3-eu-west-1.amazonaws.com/powersOfTau28_hez_final_${PTAU}.ptau
 else
     echo "File $PTAU_PATH already exists, skipping download."
 fi
